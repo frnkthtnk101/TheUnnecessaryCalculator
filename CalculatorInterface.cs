@@ -17,18 +17,33 @@ namespace mycalculator
         /// </summary>
         void Run();
     }
+
+    public abstract class BaseGUI : CalculatorInterface
+    {
+        protected Calculator _calculator;
+        protected bool _verbose;
+        protected BaseGUI(bool verbose)
+        {
+            _verbose = verbose;
+        }
+        public void Run()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     /// <summary>
     /// A terminal-based implementation of the CalculatorInterface.
     /// </summary>
-    public class TerminalCalculator : CalculatorInterface
+    public class TerminalCalculator : BaseGUI
     {
-        Calculator _calculator;
+        
         readonly int _bottomRow;
         readonly Regex _mathCalculation;
-        
-        public TerminalCalculator()
+
+        public TerminalCalculator(bool _verbose) : base(_verbose)
         {
-            _calculator = new Calculator();
+            base._calculator = new Calculator();
             string regexForInput = @"(\d+)|(\+|\*)";
             _mathCalculation = new Regex(regexForInput);
 
@@ -41,6 +56,7 @@ namespace mycalculator
         {
             
             Console.CursorVisible = false;
+
             while (true) 
             {
                 Console.WriteLine("Give me a calculation - addition and mulitplication only.");
