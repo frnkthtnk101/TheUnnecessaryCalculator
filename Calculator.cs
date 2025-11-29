@@ -60,18 +60,9 @@ namespace mycalculator
 
 
         }
-        public void Rotatehandle(int numberOfTimes = 0)
+        public void Rotatehandle()
         {
             int i = -1;
-            //if (_operation == Operation.Mulitply && numberOfTimes != 0)
-            //{
-            //    Rotatehandle(numberOfTimes - 1);
-            //}
-            //else if (_operation == Operation.Mulitply)
-            //{
-            //    return;
-            //}
-
             for (i = 0; i < _numberOfModules; i++)
             {
                 DoRotation(i);

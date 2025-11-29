@@ -20,11 +20,12 @@ namespace mycalculator
 
     public abstract class BaseGUI : CalculatorInterface
     {
-        protected Calculator _calculator;
+        protected CalculatorManager _calculator;
         protected bool _verbose;
         protected BaseGUI(bool verbose)
         {
             _verbose = verbose;
+            _calculator = new CalculatorManager(_verbose);
         }
         public void Run()
         {
@@ -43,7 +44,7 @@ namespace mycalculator
 
         public TerminalCalculator(bool _verbose) : base(_verbose)
         {
-            base._calculator = new Calculator();
+            base._calculator = new CalculatorManager(_verbose);
             string regexForInput = @"(\d+)|(\+|\*)";
             _mathCalculation = new Regex(regexForInput);
 
@@ -71,60 +72,19 @@ namespace mycalculator
 
         void DoCalculation(string input)
         {
-            _calculator = new Calculator();
-            var matches = _mathCalculation.Matches(input);
-            if (matches.Count < 3) return;
-            var lastOperationWasMultiply = false;
-            for (int i = 0; i < matches.Count; i++)
+            var correctInput = new Regex(_calculator.GetRegex());
+            if (!correctInput.IsMatch(input))
             {
-                var match = matches[i];
-                if (int.TryParse(match.Value, out int number))
-                {
-                    if(lastOperationWasMultiply)
-                    {
-                        var resultString = _calculator.ShowResult();
-                        if (!int.TryParse(resultString, out int resultNumber))
-                        {
-                            throw new InvalidOperationException("Calculator result is not a valid integer: " + resultString);
-                        }
-                        _calculator.SetInput(resultNumber);
-                        // Rotate the handle (number - 1) times for multiplication
-                        for (int j = 1; j < number; j++)
-                        {
-                            _calculator.Rotatehandle();
-                            if (_verbose)
-                            {
-                                Console.WriteLine($"Intermediate Result after {j} rotations: {_calculator.ShowResult()}");
-                            }
-                        }
-                        lastOperationWasMultiply = false;
-                    }
-                    else
-                    {
-                        _calculator.SetInput(number);
-                        _calculator.Rotatehandle();
-                    }
-                        
-                    
-                }
-                else
-                {
-                    if (match.Value == "+" )
-                        _calculator.SetOperation(Operation.Add);
-                    else if (match.Value == "*")
-                    {
-                        lastOperationWasMultiply = true;
-                        _calculator.SetOperation(Operation.Add);
-                    }
-                        
-                    
-                }
-                if(_verbose)
-                {
-                    Console.WriteLine("Intermediate Result: " + _calculator.ShowResult());
-                }
+                Console.WriteLine("Invalid input. Please provide a valid calculation.");
+                return;
             }
-            Console.WriteLine("Result: " + _calculator.ShowResult());
+            var result = _calculator.DoCalculation(input);
+            Console.WriteLine($"Result: {result}");
+            if(_verbose)
+            {
+                Console.WriteLine("Log:");
+                Console.WriteLine(_calculator.GetLog());
+            }
         }
     }
 }
