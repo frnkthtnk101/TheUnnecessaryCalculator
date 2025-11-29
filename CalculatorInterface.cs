@@ -1,0 +1,130 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+namespace mycalculator
+{
+    //For implementing different calculator interfaces. 
+    //Used to separate the core calculator logic from the user interface..
+    public interface CalculatorInterface
+    {
+        /// <summary>
+        /// Runs the calculator interface. It
+        /// could be terminal-based, GUI-based.
+        /// </summary>
+        void Run();
+    }
+
+    public abstract class BaseGUI : CalculatorInterface
+    {
+        protected Calculator _calculator;
+        protected bool _verbose;
+        protected BaseGUI(bool verbose)
+        {
+            _verbose = verbose;
+        }
+        public void Run()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// A terminal-based implementation of the CalculatorInterface.
+    /// </summary>
+    public class TerminalCalculator : BaseGUI
+    {
+        
+        readonly int _bottomRow;
+        readonly Regex _mathCalculation;
+
+        public TerminalCalculator(bool _verbose) : base(_verbose)
+        {
+            base._calculator = new Calculator();
+            string regexForInput = @"(\d+)|(\+|\*)";
+            _mathCalculation = new Regex(regexForInput);
+
+        }
+        /// <summary>
+        /// Runs the terminal calculator interface.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        public void Run()
+        {
+            
+            Console.CursorVisible = false;
+
+            while (true) 
+            {
+                Console.WriteLine("Give me a calculation - addition and mulitplication only.");
+                var input = Console.ReadLine();
+                if (_mathCalculation.IsMatch(input)) DoCalculation(input);
+                if (input.ToUpper() == "Q")
+                    break;
+
+            }
+
+        }
+
+        void DoCalculation(string input)
+        {
+            _calculator = new Calculator();
+            var matches = _mathCalculation.Matches(input);
+            if (matches.Count < 3) return;
+            var lastOperationWasMultiply = false;
+            for (int i = 0; i < matches.Count; i++)
+            {
+                var match = matches[i];
+                if (int.TryParse(match.Value, out int number))
+                {
+                    if(lastOperationWasMultiply)
+                    {
+                        var resultString = _calculator.ShowResult();
+                        if (!int.TryParse(resultString, out int resultNumber))
+                        {
+                            throw new InvalidOperationException("Calculator result is not a valid integer: " + resultString);
+                        }
+                        _calculator.SetInput(resultNumber);
+                        // Rotate the handle (number - 1) times for multiplication
+                        for (int j = 1; j < number; j++)
+                        {
+                            _calculator.Rotatehandle();
+                            if (_verbose)
+                            {
+                                Console.WriteLine($"Intermediate Result after {j} rotations: {_calculator.ShowResult()}");
+                            }
+                        }
+                        lastOperationWasMultiply = false;
+                    }
+                    else
+                    {
+                        _calculator.SetInput(number);
+                        _calculator.Rotatehandle();
+                    }
+                        
+                    
+                }
+                else
+                {
+                    if (match.Value == "+" )
+                        _calculator.SetOperation(Operation.Add);
+                    else if (match.Value == "*")
+                    {
+                        lastOperationWasMultiply = true;
+                        _calculator.SetOperation(Operation.Add);
+                    }
+                        
+                    
+                }
+                if(_verbose)
+                {
+                    Console.WriteLine("Intermediate Result: " + _calculator.ShowResult());
+                }
+            }
+            Console.WriteLine("Result: " + _calculator.ShowResult());
+        }
+    }
+}
