@@ -1,7 +1,7 @@
 ﻿
 using mycalculator;
 
-TerminalCalculator terminalCalculator = new TerminalCalculator();
+TerminalCalculator terminalCalculator = new TerminalCalculator(true);
 terminalCalculator.Run();
 //while (true)
 //{

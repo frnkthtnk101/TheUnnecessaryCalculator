@@ -82,7 +82,21 @@ namespace mycalculator
                 {
                     if(lastOperationWasMultiply)
                     {
-                        _calculator.Rotatehandle(number - 1);
+                        var resultString = _calculator.ShowResult();
+                        if (!int.TryParse(resultString, out int resultNumber))
+                        {
+                            throw new InvalidOperationException("Calculator result is not a valid integer: " + resultString);
+                        }
+                        _calculator.SetInput(resultNumber);
+                        // Rotate the handle (number - 1) times for multiplication
+                        for (int j = 1; j < number; j++)
+                        {
+                            _calculator.Rotatehandle();
+                            if (_verbose)
+                            {
+                                Console.WriteLine($"Intermediate Result after {j} rotations: {_calculator.ShowResult()}");
+                            }
+                        }
                         lastOperationWasMultiply = false;
                     }
                     else
@@ -95,17 +109,20 @@ namespace mycalculator
                 }
                 else
                 {
-                    if (match.Value == "+")
+                    if (match.Value == "+" )
                         _calculator.SetOperation(Operation.Add);
                     else if (match.Value == "*")
                     {
                         lastOperationWasMultiply = true;
-                        _calculator.SetOperation(Operation.Mulitply);
+                        _calculator.SetOperation(Operation.Add);
                     }
                         
                     
                 }
-                
+                if(_verbose)
+                {
+                    Console.WriteLine("Intermediate Result: " + _calculator.ShowResult());
+                }
             }
             Console.WriteLine("Result: " + _calculator.ShowResult());
         }
