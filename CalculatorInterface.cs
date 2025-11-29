@@ -58,23 +58,39 @@ namespace mycalculator
             _calculator = new Calculator();
             var matches = _mathCalculation.Matches(input);
             if (matches.Count < 3) return;
+            var lastOperationWasMultiply = false;
             for (int i = 0; i < matches.Count; i++)
             {
                 var match = matches[i];
                 if (int.TryParse(match.Value, out int number))
                 {
-                    _calculator.SetInput(number);
+                    if(lastOperationWasMultiply)
+                    {
+                        _calculator.Rotatehandle(number - 1);
+                        lastOperationWasMultiply = false;
+                    }
+                    else
+                    {
+                        _calculator.SetInput(number);
+                        _calculator.Rotatehandle();
+                    }
+                        
+                    
                 }
                 else
                 {
                     if (match.Value == "+")
                         _calculator.SetOperation(Operation.Add);
                     else if (match.Value == "*")
+                    {
+                        lastOperationWasMultiply = true;
                         _calculator.SetOperation(Operation.Mulitply);
-                    _calculator.Rotatehandle();
+                    }
+                        
+                    
                 }
+                
             }
-            _calculator.Rotatehandle();
             Console.WriteLine("Result: " + _calculator.ShowResult());
         }
     }

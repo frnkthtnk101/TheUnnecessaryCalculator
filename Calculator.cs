@@ -35,7 +35,7 @@ namespace mycalculator
         public void SetInput(int number)
         {
             
-            if (_operation == Operation.Add)
+            if (_operation == Operation.Add || _operation == Operation.Mulitply)
             {
                 var places = (int)Math.Pow(10, (_numberOfModules - 1));
                 for (int i = _numberOfModules - 1; i >= 0; i--)
@@ -60,11 +60,19 @@ namespace mycalculator
 
 
         }
-        public void Rotatehandle()
+        public void Rotatehandle(int numberOfTimes = 0)
         {
             int i = -1;
+            if (_operation == Operation.Mulitply && numberOfTimes != 0)
+            {
+                Rotatehandle(numberOfTimes - 1);
+            }
+            else if (_operation == Operation.Mulitply)
+            {
+                return;
+            }
 
-            for(i = 0; i < _numberOfModules; i++)
+            for (i = 0; i < _numberOfModules; i++)
             {
                 DoRotation(i);
             }
