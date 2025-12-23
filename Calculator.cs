@@ -34,31 +34,31 @@ namespace mycalculator
         }
         public void SetInput(int number)
         {
-            
-            if (_operation == Operation.Add || _operation == Operation.Mulitply)
+            if (_operation == Operation.NoOp)
             {
-                var places = (int)Math.Pow(10, (_numberOfModules - 1));
-                for (int i = _numberOfModules - 1; i >= 0; i--)
-                {
-                    var digit = number / places;
-                    _modules[i].SetPostion(digit);
-                    number = number % places;
-                    places /= 10;
-                }
+                return;
             }
-            else // subtraction
+            var places = (int)Math.Pow(10, (_numberOfModules - 1));
+            bool isNegative = number < 0;
+
+            if (_operation == Operation.Subtract && isNegative)
             {
-                var places = 1;
-                for (int i = _numberOfModules - 1; i >= 0; i--)
-                {
-                    var digit = number / places;
-                    _modules[i].SetPostion(digit);
-                    number = number % places;
-                    places *= 10;
-                }
+                number = Math.Abs(number); // Convert to positive for processing
             }
 
+            for (int i = _numberOfModules - 1; i >= 0; i--)
+            {
+                var digit = number / places;
+                _modules[i].SetPostion(digit);
+                number = number % places;
+                places /= 10;
+            }
 
+            if (_operation == Operation.Subtract && isNegative)
+            {
+                // If the number was negative, set the most significant module to indicate negativity
+                _modules[_numberOfModules - 1].SetPostion(-_modules[_numberOfModules - 1].GetResultDigit());
+            }
         }
         public void Rotatehandle()
         {

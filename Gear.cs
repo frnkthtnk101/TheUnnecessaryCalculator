@@ -12,7 +12,8 @@ namespace mycalculator
         Add,
         Subtract, // not ready yet
         Mulitply,
-        POW 
+        POW,
+        Divide
     }
     public class Module
     {

@@ -39,7 +39,7 @@ namespace mycalculator
         public CalculatorManager(bool verbose)
         {
             _verbose = verbose;
-            _regexForInput = @"(\d+)|(\+|\*|\^)";
+            _regexForInput = @"(\d+)|(\+|\*|\^|\-|\/)";
         }
         /// <summary>
         /// Parses the input string, performs mathematical operations based on the detected operators,  and returns the
@@ -78,9 +78,19 @@ namespace mycalculator
                     calculator.SetOperation(Operation.Add);
                     _operation = Operation.POW;
                 }
+                else if(match.ToString() == "-")
+                {
+                    calculator.SetOperation(Operation.Subtract);
+                    _operation = Operation.Subtract;
+                }
+                else if(match.ToString() == "/")
+                {
+                    calculator.SetOperation(Operation.Subtract);
+                    _operation = Operation.Divide;
+                }
                 else if (int.TryParse(match.ToString(), out int number))
                 {
-                    
+
                     DoMath(calculator, number);
                     _operation = Operation.NoOp;
                 }
@@ -91,6 +101,11 @@ namespace mycalculator
 
             }
             _operation = Operation.NoOp;
+            var resultString = calculator.ShowResult();
+            if (string.IsNullOrEmpty(resultString))
+            {
+                return "0";
+            }
             return calculator.ShowResult();
         }
         /// <summary>
@@ -115,13 +130,30 @@ namespace mycalculator
             {
                 DoMulitiplication(calculator, number);
             }
+            else if (_operation == Operation.Divide)
+            {
+                if (number == 0)
+                {
+                    throw new DivideByZeroException("Cannot divide by zero.");
+                }
+                int i = 0;
+                while(currentResult >= number)
+                {
+                    currentResult -= number;
+                    calculator.SetInput(currentResult);
+                    calculator.Rotatehandle();
+                    i++;
+                }
+                calculator.SetInput(i);
+                calculator.Rotatehandle();
+            }
             else if (_operation == Operation.POW)
             {
                 for (int i = 1; i < number; i++)
                     DoMulitiplication(calculator, currentResult);
             }
-            else // addition
-            {
+            else // addition & subtraction
+            { 
                 calculator.SetInput(number);
                 calculator.Rotatehandle();
             }
@@ -142,7 +174,9 @@ namespace mycalculator
         private void DoMulitiplication(Calculator calculator, int number)
         {
             var resultString = calculator.ShowResult();
-            if (!int.TryParse(resultString, out int resultNumber))
+            int resultNumber = 0;
+            if (string.IsNullOrEmpty(resultString) ||
+                !int.TryParse(resultString, out resultNumber))
             {
                 throw new InvalidOperationException("Calculator result is not a valid integer: " + resultString);
             }
