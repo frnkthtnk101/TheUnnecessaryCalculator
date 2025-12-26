@@ -147,8 +147,9 @@ namespace mycalculator
                     quotient++;
                 }
                 //you're going to have to reset it.
-                calculator.SetInput(quotient);
-                calculator.Rotatehandle();
+                //calculator.SetInput(quotient);
+                //calculator.Rotatehandle();
+                Console.WriteLine($"{quotient}");
             }
             else if (_operation == Operation.POW)
             {
