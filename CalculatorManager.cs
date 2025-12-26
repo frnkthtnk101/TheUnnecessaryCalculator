@@ -136,15 +136,18 @@ namespace mycalculator
                 {
                     throw new DivideByZeroException("Cannot divide by zero.");
                 }
-                int i = 0;
-                while(currentResult >= number)
+                int quotient = 0;
+                var divisor = number;
+                var dividend = currentResult;
+                while (dividend >= divisor)
                 {
-                    currentResult -= number;
-                    calculator.SetInput(currentResult);
+                    dividend -= divisor;
+                    calculator.SetInput(divisor);
                     calculator.Rotatehandle();
-                    i++;
+                    quotient++;
                 }
-                calculator.SetInput(i);
+                //you're going to have to reset it.
+                calculator.SetInput(quotient);
                 calculator.Rotatehandle();
             }
             else if (_operation == Operation.POW)
