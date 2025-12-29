@@ -14,7 +14,7 @@ namespace mycalculator
     /// operations.</remarks>
     public interface ICalculatorManager
     {
-        public string DoCalculation(string input);
+        public CalculatorResults DoCalculation(string input);
         public string GetRegex();
         public string GetLog();
     }
@@ -32,6 +32,7 @@ namespace mycalculator
         readonly string _regexForInput;
         StringBuilder _log;
         Operation _operation;
+        int quotient = 0;
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculatorManager"/> class.
         /// </summary>
@@ -55,7 +56,7 @@ namespace mycalculator
         /// <returns>A string representation of the calculated result.</returns>
         /// <exception cref="ArgumentException">Thrown if the <paramref name="input"/> contains fewer than three valid matches,  or if the input contains
         /// invalid characters that are neither numbers nor supported operators.</exception>
-        public string DoCalculation(string input)
+        public CalculatorResults DoCalculation(string input)
         {
             Regex matches = new Regex(_regexForInput);
             var matchCollection = matches.Matches(input);
@@ -69,17 +70,6 @@ namespace mycalculator
             }
             _operation = Operation.NoOp;
             return ShowResults(calculator);
-        }
-
-        private static string ShowResults(Calculator calculator)
-        {
-            var resultString = calculator.ShowResult();
-            if(!)
-            if (string.IsNullOrEmpty(resultString))
-            {
-                return "0";
-            }
-            return calculator.ShowResult();
         }
 
         private void DetermineProceedure(Calculator calculator, object match)
@@ -125,13 +115,15 @@ namespace mycalculator
             }
         }
 
-        private string ShowResults()
+        private CalculatorResults ShowResults(Calculator calculator)
         {
-            var resultString =.ShowResult();
-            if (_mulitpleCalculations)
+            var answer = calculator.ShowResult();
+            return new CalculatorResults()
             {
-                return Calculator.S
-            }
+                Answer = answer,
+                Remainder = quotient,
+                ErrorMessage = string.Empty
+            };
         }
 
         /// <summary>
@@ -144,14 +136,9 @@ namespace mycalculator
         /// <param name="calculator">The <see cref="Calculator"/> instance on which the operation will be performed. Must not be <c>null</c>.</param>
         /// <param name="number">The number to be used in the operation. Must be a positive integer.</param>
         /// <exception cref="Exception">Thrown if the calculator's result is invalid or the calculator is in an inconsistent state.</exception>
-        private void DoMath( Calculator calculator, int number)
+        private void DoMath(Calculator calculator, int number)
         {
-            var resultString = calculator.ShowResult();
-            if (string.IsNullOrEmpty(resultString) == false &
-                !int.TryParse(resultString, out int currentResult))
-            {
-                throw new Exception("Calculator is broken.");
-            }
+            var currentAnswer = calculator.ShowResult();
             if (_operation == Operation.Mulitply)
             {
                 DoMulitiplication(calculator, number);
@@ -162,9 +149,9 @@ namespace mycalculator
                 {
                     throw new DivideByZeroException("Cannot divide by zero.");
                 }
-                int quotient = 0;
+                quotient = 0;
                 var divisor = number;
-                var dividend = currentResult;
+                var dividend = currentAnswer;
                 while (dividend >= divisor)
                 {
                     dividend -= divisor;
@@ -175,20 +162,22 @@ namespace mycalculator
                 //you're going to have to reset it.
                 //calculator.SetInput(quotient);
                 //calculator.Rotatehandle();
-                if (_mulitpleCalculations) { 
-                    calculator= new Calculator();
+                if (_mulitpleCalculations)
+                {
+                    calculator = new Calculator();
                     calculator.SetInput(quotient);
                     calculator.Rotatehandle();
+                    quotient = 0;
                 }
                 //Console.WriteLine($"{quotient}");
             }
             else if (_operation == Operation.POW)
             {
                 for (int i = 1; i < number; i++)
-                    DoMulitiplication(calculator, currentResult);
+                    DoMulitiplication(calculator, currentAnswer);
             }
             else // addition & subtraction
-            { 
+            {
                 calculator.SetInput(number);
                 calculator.Rotatehandle();
             }
@@ -208,13 +197,7 @@ namespace mycalculator
         /// <exception cref="InvalidOperationException">Thrown if the calculator's current result is not a valid integer.</exception>
         private void DoMulitiplication(Calculator calculator, int number)
         {
-            var resultString = calculator.ShowResult();
-            int resultNumber = 0;
-            if (string.IsNullOrEmpty(resultString) ||
-                !int.TryParse(resultString, out resultNumber))
-            {
-                throw new InvalidOperationException("Calculator result is not a valid integer: " + resultString);
-            }
+            int resultNumber = calculator.ShowResult();
             if (resultNumber == 0 || number == 0)
             {
                 // Multiplication by zero results in zero
@@ -224,7 +207,7 @@ namespace mycalculator
             calculator.SetInput(resultNumber);
             // Rotate the handle (number - 1) times for multiplication
             for (int i = 1; i < number; i++)
-                calculator.Rotatehandle(); 
+                calculator.Rotatehandle();
         }
         /// <summary>
         /// Retrieves the regular expression used for input validation.
@@ -237,5 +220,15 @@ namespace mycalculator
         /// <returns>A string representation of the current log. Returns an empty string if the log is empty.</returns>
         public string GetLog() => _log.ToString();
 
+    }
+
+    public class CalculatorResults()
+    {
+        public int Answer { get; set; }
+        public int Remainder
+        {
+            get; set;
+        }
+        public string ErrorMessage { get; set; }
     }
 }

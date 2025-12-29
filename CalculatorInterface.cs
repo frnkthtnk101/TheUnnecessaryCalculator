@@ -25,7 +25,7 @@ namespace mycalculator
         protected BaseGUI(bool verbose)
         {
             _verbose = verbose;
-            _calculator = new CalculatorManager(_verbose);
+            //_calculator = new CalculatorManager(_verbose, true);
         }
         public void Run()
         {
@@ -44,7 +44,7 @@ namespace mycalculator
 
         public TerminalCalculator(bool _verbose) : base(_verbose)
         {
-            base._calculator = new CalculatorManager(_verbose);
+            base._calculator = new CalculatorManager(_verbose,false);
             string regexForInput = @"(\d+)|(\+|\*)";
             _mathCalculation = new Regex(regexForInput);
 
@@ -79,7 +79,7 @@ namespace mycalculator
                 return;
             }
             var result = _calculator.DoCalculation(input);
-            Console.WriteLine($"Result: {result}");
+            Console.WriteLine($"Result: {result.Answer} R:{result.Remainder}");
             if(_verbose)
             {
                 Console.WriteLine("Log:");
