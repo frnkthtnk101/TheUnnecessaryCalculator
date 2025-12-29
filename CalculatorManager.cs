@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace mycalculator
@@ -27,7 +28,7 @@ namespace mycalculator
     /// calculation steps, which can be enabled through the constructor. </para></remarks>
     public class CalculatorManager : ICalculatorManager
     {
-        bool _verbose;
+        bool _verbose, _mulitpleCalculations;
         readonly string _regexForInput;
         StringBuilder _log;
         Operation _operation;
@@ -36,10 +37,11 @@ namespace mycalculator
         /// </summary>
         /// <param name="verbose">A value indicating whether the calculator should operate in verbose mode.  If <see langword="true"/>,
         /// additional details about operations may be logged or displayed.</param>
-        public CalculatorManager(bool verbose)
+        public CalculatorManager(bool verbose, bool mulitpleCalculations)
         {
             _verbose = verbose;
             _regexForInput = @"(\d+)|(\+|\*|\^|\-|\/)";
+            _mulitpleCalculations = mulitpleCalculations;
         }
         /// <summary>
         /// Parses the input string, performs mathematical operations based on the detected operators,  and returns the
@@ -55,59 +57,83 @@ namespace mycalculator
         /// invalid characters that are neither numbers nor supported operators.</exception>
         public string DoCalculation(string input)
         {
-           Regex matches = new Regex(_regexForInput);
+            Regex matches = new Regex(_regexForInput);
             var matchCollection = matches.Matches(input);
-            if(matchCollection.Count < 3) 
+            if (matchCollection.Count < 3)
                 throw new ArgumentException($"Invalid Input given {input}");
             Calculator calculator = new Calculator();
             _log = new StringBuilder();
-            foreach (var match in matchCollection) 
-            { 
-                if(match.ToString() == "+")
-                {
-                    calculator.SetOperation(Operation.Add);
-                    _operation = Operation.Add;
-                }
-                else if (match.ToString() == "*")
-                {
-                    calculator.SetOperation(Operation.Add);
-                    _operation = Operation.Mulitply;
-                }
-                else if(match.ToString() == "^")
-                {
-                    calculator.SetOperation(Operation.Add);
-                    _operation = Operation.POW;
-                }
-                else if(match.ToString() == "-")
-                {
-                    calculator.SetOperation(Operation.Subtract);
-                    _operation = Operation.Subtract;
-                }
-                else if(match.ToString() == "/")
-                {
-                    calculator.SetOperation(Operation.Subtract);
-                    _operation = Operation.Divide;
-                }
-                else if (int.TryParse(match.ToString(), out int number))
-                {
-
-                    DoMath(calculator, number);
-                    _operation = Operation.NoOp;
-                }
-                else
-                {
-                    throw new ArgumentException($"Invalid number input: {match}");
-                }
-
+            foreach (var match in matchCollection)
+            {
+                DetermineProceedure(calculator, match);
             }
             _operation = Operation.NoOp;
+            return ShowResults(calculator);
+        }
+
+        private static string ShowResults(Calculator calculator)
+        {
             var resultString = calculator.ShowResult();
+            if(!)
             if (string.IsNullOrEmpty(resultString))
             {
                 return "0";
             }
             return calculator.ShowResult();
         }
+
+        private void DetermineProceedure(Calculator calculator, object match)
+        {
+            if (match.ToString() == "+")
+            {
+                calculator.SetOperation(Operation.Add);
+                _operation = Operation.Add;
+            }
+            else if (match.ToString() == "*")
+            {
+                calculator.SetOperation(Operation.Add);
+                _operation = Operation.Mulitply;
+            }
+            else if (match.ToString() == "^")
+            {
+                calculator.SetOperation(Operation.Add);
+                _operation = Operation.POW;
+            }
+            else if (match.ToString() == "-")
+            {
+                calculator.SetOperation(Operation.Subtract);
+                _operation = Operation.Subtract;
+            }
+            else if (match.ToString() == "/")
+            {
+                calculator.SetOperation(Operation.Subtract);
+                _operation = Operation.Divide;
+            }
+            else if (int.TryParse(match.ToString(), out int number))
+            {
+
+                DoMath(calculator, number);
+                if (!_mulitpleCalculations)
+                {
+                    _operation = Operation.NoOp;
+                }
+
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid number input: {match}");
+            }
+        }
+
+        private string ShowResults()
+        {
+            var resultString =.ShowResult();
+            if (_mulitpleCalculations)
+            {
+                return Calculator.S
+            }
+        }
+
         /// <summary>
         /// Performs a mathematical operation on the specified <see cref="Calculator"/> instance using the provided
         /// number.
@@ -149,7 +175,12 @@ namespace mycalculator
                 //you're going to have to reset it.
                 //calculator.SetInput(quotient);
                 //calculator.Rotatehandle();
-                Console.WriteLine($"{quotient}");
+                if (_mulitpleCalculations) { 
+                    calculator= new Calculator();
+                    calculator.SetInput(quotient);
+                    calculator.Rotatehandle();
+                }
+                //Console.WriteLine($"{quotient}");
             }
             else if (_operation == Operation.POW)
             {
