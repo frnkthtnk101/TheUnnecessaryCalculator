@@ -100,12 +100,12 @@ namespace mycalculator
             }
         }
 
-
-        public string ShowResult()
+        
+        public int ShowResult()
         {
             StringBuilder result = new StringBuilder();
             var digitAppeared = false;
-            if(_finalCarryOver)
+            if (_finalCarryOver)
             {
                 result.Append("1");
                 digitAppeared = true;
@@ -124,7 +124,8 @@ namespace mycalculator
                 }
 
             }
-            return result.ToString();
+            int.TryParse(result.ToString(), out int finalResult);
+            return finalResult;
         }
     }
 }
