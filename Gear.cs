@@ -8,9 +8,12 @@ namespace mycalculator
 {
     public enum Operation
     {
+        NoOp,
         Add,
         Subtract, // not ready yet
         Mulitply,
+        POW,
+        Divide
     }
     public class Module
     {
